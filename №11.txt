@@ -1,0 +1,124 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ContainerConfigProvider()),
+      ],
+      child: MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text("Container Configurator"),
+          ),
+          body: const ConfiguratorScreen(),
+        ),
+      ),
+    );
+  }
+}
+
+class ContainerConfigProvider with ChangeNotifier {
+  double width = 150;
+  double height = 150;
+  double borderRadius = 0;
+
+  void updateWidth(double newWidth) {
+    width = newWidth;
+    notifyListeners();
+  }
+
+  void updateHeight(double newHeight) {
+    height = newHeight;
+    notifyListeners();
+  }
+
+  void updateBorderRadius(double newRadius) {
+    borderRadius = newRadius;
+    notifyListeners();
+  }
+}
+
+class ConfiguratorScreen extends StatelessWidget {
+  const ConfiguratorScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: const [
+        SliderSection(),
+        SizedBox(height: 20),
+        DisplayContainer(),
+      ],
+    );
+  }
+}
+
+class SliderSection extends StatelessWidget {
+  const SliderSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final config = Provider.of<ContainerConfigProvider>(context);
+
+    return Column(
+      children: [
+        Text("Width: ${config.width.toStringAsFixed(0)}"),
+        Slider(
+          value: config.width,
+          min: 50,
+          max: 300,
+          onChanged: (value) {
+            config.updateWidth(value);
+          },
+        ),
+        Text("Height: ${config.height.toStringAsFixed(0)}"),
+        Slider(
+          value: config.height,
+          min: 50,
+          max: 300,
+          onChanged: (value) {
+            config.updateHeight(value);
+          },
+        ),
+        Text("Top Right Radius: ${config.borderRadius.toStringAsFixed(0)}"),
+        Slider(
+          value: config.borderRadius,
+          min: 0,
+          max: 100,
+          onChanged: (value) {
+            config.updateBorderRadius(value);
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class DisplayContainer extends StatelessWidget {
+  const DisplayContainer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final config = Provider.of<ContainerConfigProvider>(context);
+
+    return Container(
+      width: config.width,
+      height: config.height,
+      decoration: BoxDecoration(
+        color: Colors.red,
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(config.borderRadius),
+        ),
+      ),
+    );
+  }
+}
